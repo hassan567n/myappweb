@@ -25,78 +25,70 @@
     <!-- Header -->
     <header class="glass sticky top-0 z-50 border-b border-slate-800 px-4 py-3 shadow-lg">
         <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-3 cursor-pointer" onclick="router('browser')">
                 <div class="bg-cyan-500 text-slate-950 p-2.5 rounded-xl font-black text-xl shadow-lg shadow-cyan-500/50">
                     <i class="fa-solid fa-compass"></i>
                 </div>
                 <div>
-                    <h1 class="text-xl font-bold tracking-wider text-cyan-400">متصفح الويب</h1>
-                    <p class="text-xs text-slate-400">Hassan Store Web Browser</p>
+                    <h1 class="text-xl font-bold tracking-wider text-cyan-400">متصفح حسن ستور</h1>
+                    <p class="text-xs text-slate-400">Browser & Download Hub</p>
                 </div>
             </div>
 
             <div class="flex items-center gap-3">
-                <label class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-4 py-2 rounded-xl text-sm flex items-center gap-2 shadow-lg shadow-amber-500/20 transition cursor-pointer">
-                    <i class="fa-solid fa-upload"></i>
-                    <span>رفع APK المتجر</span>
-                    <input type="file" id="storeApkInput" accept=".apk" class="hidden" onchange="uploadStoreApk(event)">
-                </label>
+                <button id="adminNavBtn" onclick="router('admin')" class="hidden bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/50 text-amber-400 px-3 py-2 rounded-xl text-sm flex items-center gap-2 transition">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    <span>لوحة الأدمن</span>
+                </button>
 
-                <a id="downloadStoreBtn" href="#" download="HassanStore.apk" class="hidden bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold px-4 py-2 rounded-xl text-sm flex items-center gap-2 shadow-lg shadow-cyan-500/20 transition">
-                    <i class="fa-solid fa-download"></i>
-                    <span>تحميل APK</span>
-                </a>
+                <div id="authArea">
+                    <button onclick="openModal('authModal')" class="bg-slate-800 hover:bg-slate-700 border border-slate-600 px-4 py-2 rounded-xl text-sm font-semibold transition">تسجيل الدخول</button>
+                </div>
             </div>
         </div>
     </header>
 
-    <!-- Browser Main UI -->
-    <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 flex flex-col gap-4">
-        
-        <!-- Address Bar & Navigation Controls -->
-        <div class="glass p-4 rounded-3xl border border-cyan-500/30 shadow-xl flex flex-col gap-3">
-            <div class="flex items-center gap-2">
-                <button onclick="browserBack()" class="bg-slate-900 hover:bg-slate-800 text-slate-300 p-2.5 rounded-xl border border-slate-700 transition" title="رجوع"><i class="fa-solid fa-arrow-right"></i></button>
-                <button onclick="browserForward()" class="bg-slate-900 hover:bg-slate-800 text-slate-300 p-2.5 rounded-xl border border-slate-700 transition" title="تقدم"><i class="fa-solid fa-arrow-left"></i></button>
-                <button onclick="browserReload()" class="bg-slate-900 hover:bg-slate-800 text-slate-300 p-2.5 rounded-xl border border-slate-700 transition" title="تحديث"><i class="fa-solid fa-rotate-right"></i></button>
-                
-                <div class="flex-1 flex items-center relative">
-                    <i class="fa-solid fa-globe absolute right-3.5 text-slate-400"></i>
-                    <input type="text" id="urlInput" placeholder="اكتب رابط الموقع هنا (مثل: https://www.google.com)" 
-                        class="w-full bg-slate-900 border border-slate-700 rounded-2xl py-2.5 pr-10 pl-4 text-sm focus:outline-none focus:border-cyan-500 transition"
-                        onkeypress="if(event.key === 'Enter') navigateBrowser()">
-                </div>
-                
-                <button onclick="navigateBrowser()" class="bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold px-5 py-2.5 rounded-2xl text-sm transition shadow-lg shadow-cyan-500/20">
-                    انتقال
-                </button>
-            </div>
+    <!-- Main Dynamic Content -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 flex flex-col" id="mainContent"></main>
 
-            <!-- Fast Bookmarks -->
-            <div class="flex items-center gap-2 overflow-x-auto pb-1 text-xs">
-                <span class="text-slate-400 font-semibold ml-1">مواقع سريعة:</span>
-                <button onclick="quickNav('https://www.google.com')" class="bg-slate-900 hover:bg-slate-800 border border-slate-700 px-3 py-1.5 rounded-xl transition">جوجل</button>
-                <button onclick="quickNav('https://bing.com')" class="bg-slate-900 hover:bg-slate-800 border border-slate-700 px-3 py-1.5 rounded-xl transition">بينج</button>
-                <button onclick="quickNav('https://wikipedia.org')" class="bg-slate-900 hover:bg-slate-800 border border-slate-700 px-3 py-1.5 rounded-xl transition">ويكيبيديا</button>
-            </div>
-        </div>
-
-        <!-- Frame Viewport -->
-        <div class="flex-1 glass rounded-3xl overflow-hidden border border-slate-800 shadow-2xl min-h-[550px] flex flex-col relative">
-            <div id="browserLoading" class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm hidden flex items-center justify-center z-10">
-                <i class="fa-solid fa-spinner fa-spin text-cyan-400 text-4xl"></i>
-            </div>
-            <iframe id="browserFrame" src="https://www.google.com" class="w-full flex-1 border-0 bg-white min-h-[550px]"></iframe>
-        </div>
-
-    </main>
-
+    <!-- Footer -->
     <footer class="glass border-t border-slate-800 py-4 text-center text-xs text-slate-500">
-        <p>متصفح الويب © 2026 - جميع الحقوق محفوظة</p>
+        <p>متصفح حسن ستور © 2026 - جميع الحقوق محفوظة</p>
     </footer>
 
+    <!-- Auth Modal -->
+    <div id="authModal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="glass max-w-md w-full p-6 rounded-3xl border border-slate-800 shadow-2xl relative">
+            <button onclick="closeModal('authModal')" class="absolute top-4 left-4 text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            <h2 class="text-lg font-bold mb-2 text-cyan-400 flex items-center gap-2">
+                <i class="fa-solid fa-user-lock"></i> تسجيل الدخول
+            </h2>
+            <p class="text-xs text-slate-400 mb-4">أدخل بريد الأدمن (alaaraad990999@gmail.com) لفتح لوحة التحكم.</p>
+            <form onsubmit="handleAuth(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1">البريد الإلكتروني</label>
+                    <input type="email" id="authEmail" required class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-sm focus:outline-none focus:border-cyan-500">
+                </div>
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1">كلمة المرور</label>
+                    <input type="password" id="authPass" required class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-sm focus:outline-none focus:border-cyan-500">
+                </div>
+                <button type="submit" class="w-full bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold p-2.5 rounded-xl transition shadow-lg shadow-cyan-500/20">تسجيل الدخول</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Script Logic -->
     <script>
-        let storeApkData = localStorage.getItem('hassanStore_apk_file') || null;
+        const ADMIN_EMAIL = "alaaraad990999@gmail.com";
+        let db = JSON.parse(localStorage.getItem('hassanBrowser_db')) || {
+            currentUser: JSON.parse(localStorage.getItem('hassanBrowser_user')) || null,
+            storeApkUrl: "#" // ضع رابط تحميل ملف الـ APK الخاص بالمتجر هنا مباشرة إذا أردت
+        };
+
+        function saveDB() {
+            localStorage.setItem('hassanBrowser_db', JSON.stringify(db));
+        }
 
         function showToast(msg) {
             const toast = document.getElementById('toast');
@@ -107,27 +99,138 @@
             }, 3000);
         }
 
-        function uploadStoreApk(e) {
-            const file = e.target.files[0];
-            if(file) {
-                const reader = new FileReader();
-                reader.onload = function(evt) {
-                    storeApkData = evt.target.result;
-                    localStorage.setItem('hassanStore_apk_file', storeApkData);
-                    checkStoreApk();
-                    showToast("تم حفظ ملف APK بنجاح!");
-                };
-                reader.readAsDataURL(file);
+        function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+        let currentRoute = 'browser';
+        function router(route) {
+            currentRoute = route;
+            render();
+        }
+
+        function handleAuth(e) {
+            e.preventDefault();
+            const email = document.getElementById('authEmail').value;
+            db.currentUser = { email: email };
+            localStorage.setItem('hassanBrowser_user', JSON.stringify(db.currentUser));
+            saveDB();
+            closeModal('authModal');
+            render();
+            showToast("تم تسجيل الدخول بنجاح!");
+        }
+
+        function logout() {
+            db.currentUser = null;
+            localStorage.removeItem('hassanBrowser_user');
+            saveDB();
+            router('browser');
+            showToast("تم تسجيل الخروج بنجاح");
+        }
+
+        function updateApkLink(e) {
+            e.preventDefault();
+            const newUrl = document.getElementById('apkUrlInput').value.trim();
+            if(newUrl) {
+                db.storeApkUrl = newUrl;
+                saveDB();
+                showToast("تم تحديث رابط تحميل الـ APK بنجاح!");
+                render();
             }
         }
 
-        function checkStoreApk() {
-            const btn = document.getElementById('downloadStoreBtn');
-            if(storeApkData) {
-                btn.href = storeApkData;
-                btn.classList.remove('hidden');
+        function render() {
+            const main = document.getElementById('mainContent');
+            const authArea = document.getElementById('authArea');
+            const adminNavBtn = document.getElementById('adminNavBtn');
+
+            const isAdmin = db.currentUser && db.currentUser.email === ADMIN_EMAIL;
+
+            if (isAdmin) {
+                adminNavBtn.classList.remove('hidden');
             } else {
-                btn.classList.add('hidden');
+                adminNavBtn.classList.add('hidden');
+                if(currentRoute === 'admin') currentRoute = 'browser';
+            }
+
+            if (db.currentUser) {
+                authArea.innerHTML = `
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs text-cyan-400 font-semibold hidden sm:inline">${db.currentUser.email}</span>
+                        <button onclick="logout()" class="bg-red-500/15 hover:bg-red-500/25 text-red-400 border border-red-500/30 px-3 py-2 rounded-xl text-sm transition">خروج</button>
+                    </div>
+                `;
+            } else {
+                authArea.innerHTML = `
+                    <button onclick="openModal('authModal')" class="bg-slate-800 hover:bg-slate-700 border border-slate-600 px-4 py-2 rounded-xl text-sm font-semibold transition">تسجيل الدخول</button>
+                `;
+            }
+
+            if (currentRoute === 'browser') {
+                main.innerHTML = `
+                    <div class="flex flex-col gap-4 flex-1">
+                        <!-- Address Bar -->
+                        <div class="glass p-4 rounded-3xl border border-cyan-500/30 shadow-xl flex flex-col gap-3">
+                            <div class="flex items-center gap-2">
+                                <button onclick="browserBack()" class="bg-slate-900 hover:bg-slate-800 text-slate-300 p-2.5 rounded-xl border border-slate-700 transition"><i class="fa-solid fa-arrow-right"></i></button>
+                                <button onclick="browserForward()" class="bg-slate-900 hover:bg-slate-800 text-slate-300 p-2.5 rounded-xl border border-slate-700 transition"><i class="fa-solid fa-arrow-left"></i></button>
+                                <button onclick="browserReload()" class="bg-slate-900 hover:bg-slate-800 text-slate-300 p-2.5 rounded-xl border border-slate-700 transition"><i class="fa-solid fa-rotate-right"></i></button>
+                                
+                                <div class="flex-1 flex items-center relative">
+                                    <i class="fa-solid fa-globe absolute right-3.5 text-slate-400"></i>
+                                    <input type="text" id="urlInput" placeholder="اكتب رابط الموقع هنا..." 
+                                        class="w-full bg-slate-900 border border-slate-700 rounded-2xl py-2.5 pr-10 pl-4 text-sm focus:outline-none focus:border-cyan-500 transition"
+                                        onkeypress="if(event.key === 'Enter') navigateBrowser()">
+                                </div>
+                                
+                                <button onclick="navigateBrowser()" class="bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold px-5 py-2.5 rounded-2xl text-sm transition shadow-lg shadow-cyan-500/20">
+                                    انتقال
+                                </button>
+                            </div>
+
+                            <div class="flex items-center justify-between flex-wrap gap-2 text-xs">
+                                <div class="flex items-center gap-2 overflow-x-auto pb-1">
+                                    <span class="text-slate-400 font-semibold ml-1">مواقع سريعة:</span>
+                                    <button onclick="quickNav('https://www.google.com')" class="bg-slate-900 hover:bg-slate-800 border border-slate-700 px-3 py-1.5 rounded-xl transition">جوجل</button>
+                                    <button onclick="quickNav('https://bing.com')" class="bg-slate-900 hover:bg-slate-800 border border-slate-700 px-3 py-1.5 rounded-xl transition">بينج</button>
+                                    <button onclick="quickNav('https://wikipedia.org')" class="bg-slate-900 hover:bg-slate-800 border border-slate-700 px-3 py-1.5 rounded-xl transition">ويكيبيديا</button>
+                                </div>
+
+                                <!-- زر تحميل ملف APK المتجر للمستخدمين -->
+                                <a href="${db.storeApkUrl}" download="HassanStore.apk" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-4 py-2 rounded-xl flex items-center gap-2 transition shadow-lg shadow-emerald-500/20">
+                                    <i class="fa-solid fa-download"></i> تحميل APK المتجر
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Browser Frame -->
+                        <div class="flex-1 glass rounded-3xl overflow-hidden border border-slate-800 shadow-2xl min-h-[550px] flex flex-col relative">
+                            <div id="browserLoading" class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm hidden flex items-center justify-center z-10">
+                                <i class="fa-solid fa-spinner fa-spin text-cyan-400 text-4xl"></i>
+                            </div>
+                            <iframe id="browserFrame" src="https://www.google.com" class="w-full flex-1 border-0 bg-white min-h-[550px]"></iframe>
+                        </div>
+                    </div>
+                `;
+            } else if (currentRoute === 'admin' && isAdmin) {
+                main.innerHTML = `
+                    <div class="max-w-xl mx-auto w-full glass p-8 rounded-3xl border border-amber-500/40 shadow-2xl space-y-6">
+                        <div class="flex items-center justify-between">
+                            <h2 class="text-xl font-bold text-amber-400 flex items-center gap-2">
+                                <i class="fa-solid fa-shield-halved"></i> لوحة تحكم الأدمن
+                            </h2>
+                            <button onclick="router('browser')" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-xl text-xs transition">العودة للمتصفح</button>
+                        </div>
+                        <p class="text-xs text-slate-400">هنا لوحة التحكم الخاصة بالأدمن لإدارة رابط تحميل تطبيق المتجر (APK).</p>
+                        
+                        <form onsubmit="updateApkLink(event)" class="glass p-6 rounded-2xl border border-slate-700 space-y-4">
+                            <div>
+                                <label class="block text-xs text-slate-400 mb-1">رابط تحميل ملف APK للمتجر</label>
+                                <input type="text" id="apkUrlInput" value="${db.storeApkUrl}" required class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-sm text-slate-200 focus:outline-none focus:border-amber-500">
+                            </div>
+                            <button type="submit" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-2.5 rounded-xl transition text-sm shadow-lg shadow-amber-500/20">حفظ وتحديث الرابط</button>
+                        </form>
+                    </div>
+                `;
             }
         }
 
@@ -164,7 +267,7 @@
             try { document.getElementById('browserFrame').contentWindow.history.forward(); } catch(e) {}
         }
 
-        checkStoreApk();
+        render();
     </script>
 </body>
 </html>
