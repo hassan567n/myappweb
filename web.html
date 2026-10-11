@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>متصفح وتحميل حسن ستور | Hassan Store Browser</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
+        body { font-family: 'Cairo', sans-serif; }
+        .glass { background: rgba(17, 24, 39, 0.85); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col">
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-5 left-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 glass border border-cyan-500/50 px-5 py-3 rounded-2xl shadow-2xl flex items-center gap-3">
+        <i class="fa-solid fa-circle-check text-cyan-400 text-lg"></i>
+        <span id="toastMsg" class="text-sm font-semibold"></span>
+    </div>
+
+    <!-- Header / Navbar -->
+    <header class="glass sticky top-0 z-50 border-b border-slate-800 px-4 py-3 shadow-lg">
+        <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div class="bg-cyan-500 text-slate-950 p-2.5 rounded-xl font-black text-xl shadow-lg shadow-cyan-500/50">
+                    <i class="fa-solid fa-compass"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-wider text-cyan-400">متصفح حسن ستور</h1>
+                    <p class="text-xs text-slate-400">Hassan Store Browser & APK Hub</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <!-- زر تحميل ملف APK الخاص بالمتجر -->
+                <label class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-4 py-2 rounded-xl text-sm flex items-center gap-2 shadow-lg shadow-amber-500/20 transition cursor-pointer">
+                    <i class="fa-solid fa-upload"></i>
+                    <span>رفع / تحديث APK المتجر</span>
+                    <input type="file" id="storeApkInput" accept=".apk" class="hidden" onchange="uploadStoreApk(event)">
+                </label>
+
+                <a id="downloadStoreBtn" href="#" download="HassanStore.apk" class="hidden bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold px-4 py-2 rounded-xl text-sm flex items-center gap-2 shadow-lg shadow-cyan-500/20 transition">
+                    <i class="fa-solid fa-download"></i>
+                    <span>تحميل APK المتجر</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content: Browser & Hub -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 flex flex-col gap-6">
+        
+        <!-- Browser Controls & URL Bar -->
+        <div class="glass p-4 rounded-3xl border border-cyan-500/30 shadow-xl flex flex-col gap-3">
+            <div class="flex items-center gap-2">
+                <button onclick="browserBack()" class="bg-slate-900 hover:bg-slate-800 text-slate-300 p-2.5 rounded-xl border border-slate-700 transition"><i class="fa-solid fa-arrow-right"></i></button>
+                <button onclick="browserForward()" class="bg-slate-900 hover:bg-slate-800 text-slate-300 p-2.5 rounded-xl border border-slate-700 transition"><i class="fa-solid fa-arrow-left"></i></button>
+                <button onclick="browserReload()" class="bg-slate-900 hover:bg-slate-800 text-slate-300 p-2.5 rounded-xl border border-slate-700 transition"><i class="fa-solid fa-rotate-right"></i></button>
+                
+                <div class="flex-1 flex items-center relative">
+                    <i class="fa-solid fa-globe absolute right-3.5 text-slate-400"></i>
+                    <input type="text" id="urlInput" placeholder="اكتب الرابط هنا (مثال: https://www.google.com)" 
+                        class="w-full bg-slate-900 border border-slate-700 rounded-2xl py-2.5 pr-10 pl-4 text-sm focus:outline-none focus:border-cyan-500 transition"
+                        onkeypress="if(event.key === 'Enter') navigateBrowser()">
+                </div>
+                
+                <button onclick="navigateBrowser()" class="bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold px-5 py-2.5 rounded-2xl text-sm transition shadow-lg shadow-cyan-500/20">
+                    انتقال
+                </button>
+            </div>
+
+            <!-- Quick Links -->
+            <div class="flex items-center gap-2 overflow-x-auto pb-1 text-xs">
+                <span class="text-slate-400 font-semibold ml-1">مواقع سريعة:</span>
+                <button onclick="quickNav('https://www.google.com')" class="bg-slate-900 hover:bg-slate-800 border border-slate-700 px-3 py-1.5 rounded-xl transition">جوجل</button>
+                <button onclick="quickNav('https://github.com')" class="bg-slate-900 hover:bg-slate-800 border border-slate-700 px-3 py-1.5 rounded-xl transition">جيت هب</button>
+                <button onclick="quickNav('https://itch.io')" class="bg-slate-900 hover:bg-slate-800 border border-slate-700 px-3 py-1.5 rounded-xl transition">ألعاب Itch.io</button>
+            </div>
+        </div>
+
+        <!-- Browser Viewport (Iframe) -->
+        <div class="flex-1 glass rounded-3xl overflow-hidden border border-slate-800 shadow-2xl min-h-[500px] flex flex-col relative">
+            <div id="browserLoading" class="absolute inset-0 bg-slate-950/50 backdrop-blur-sm hidden flex items-center justify-center z-10">
+                <i class="fa-solid fa-spinner fa-spin text-cyan-400 text-3xl"></i>
+            </div>
+            <iframe id="browserFrame" src="https://www.google.com" class="w-full flex-1 border-0 bg-white min-h-[550px]"></iframe>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="glass border-t border-slate-800 py-4 text-center text-xs text-slate-500">
+        <p>متصفح وتحميل حسن ستور © 2026 - جميع الحقوق محفوظة</p>
+    </footer>
+
+    <!-- Script Logic -->
+    <script>
+        let storeApkData = localStorage.getItem('hassanStore_apk_file') || null;
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMsg').innerText = msg;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+
+        function uploadStoreApk(e) {
+            const file = e.target.files[0];
+            if(file) {
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    storeApkData = evt.target.result;
+                    localStorage.setItem('hassanStore_apk_file', storeApkData);
+                    checkStoreApk();
+                    showToast("تم رفع ملف APK الخاص بالمتجر بنجاح!");
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function checkStoreApk() {
+            const btn = document.getElementById('downloadStoreBtn');
+            if(storeApkData) {
+                btn.href = storeApkData;
+                btn.classList.remove('hidden');
+            } else {
+                btn.classList.add('hidden');
+            }
+        }
+
+        function navigateBrowser() {
+            let url = document.getElementById('urlInput').value.trim();
+            if(!url) return;
+            if(!url.startsWith('http://') && !url.startsWith('https://')) {
+                url = 'https://' + url;
+                document.getElementById('urlInput').value = url;
+            }
+            document.getElementById('browserLoading').classList.remove('hidden');
+            const frame = document.getElementById('browserFrame');
+            frame.src = url;
+            frame.onload = function() {
+                document.getElementById('browserLoading').classList.add('hidden');
+            };
+        }
+
+        function quickNav(url) {
+            document.getElementById('urlInput').value = url;
+            navigateBrowser();
+        }
+
+        function browserReload() {
+            const frame = document.getElementById('browserFrame');
+            frame.src = frame.src;
+        }
+
+        function browserBack() {
+            try { document.getElementById('browserFrame').contentWindow.history.back(); } catch(e) { showToast("لا يمكن الرجوع للخلف أكثر"); }
+        }
+
+        function browserForward() {
+            try { document.getElementById('browserFrame').contentWindow.history.forward(); } catch(e) { showToast("لا يمكن التقدم للأمام"); }
+        }
+
+        // Initial Check
+        checkStoreApk();
+    </script>
+</body>
+</html>
