@@ -31,7 +31,7 @@
                 </div>
                 <div>
                     <h1 class="text-xl font-bold tracking-wider text-cyan-400">متصفح حسن ستور</h1>
-                    <p class="text-xs text-slate-400">Browser & Download Hub</p>
+                    <p class="text-xs text-slate-400">Browser & APK Hub</p>
                 </div>
             </div>
 
@@ -83,7 +83,8 @@
         const ADMIN_EMAIL = "alaaraad990999@gmail.com";
         let db = JSON.parse(localStorage.getItem('hassanBrowser_db')) || {
             currentUser: JSON.parse(localStorage.getItem('hassanBrowser_user')) || null,
-            storeApkUrl: "#" // ضع رابط تحميل ملف الـ APK الخاص بالمتجر هنا مباشرة إذا أردت
+            storeApkData: null,
+            apkName: "HassanStore.apk"
         };
 
         function saveDB() {
@@ -127,14 +128,18 @@
             showToast("تم تسجيل الخروج بنجاح");
         }
 
-        function updateApkLink(e) {
-            e.preventDefault();
-            const newUrl = document.getElementById('apkUrlInput').value.trim();
-            if(newUrl) {
-                db.storeApkUrl = newUrl;
-                saveDB();
-                showToast("تم تحديث رابط تحميل الـ APK بنجاح!");
-                render();
+        function handleStoreApkUpload(e) {
+            const file = e.target.files[0];
+            if(file) {
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    db.storeApkData = evt.target.result;
+                    db.apkName = file.name;
+                    saveDB();
+                    render();
+                    showToast("تم رفع ملف APK للمتجر بنجاح وإتاحته للتحميل!");
+                };
+                reader.readAsDataURL(file);
             }
         }
 
@@ -168,7 +173,7 @@
             if (currentRoute === 'browser') {
                 main.innerHTML = `
                     <div class="flex flex-col gap-4 flex-1">
-                        <!-- Address Bar -->
+                        <!-- Address Bar & Download Button -->
                         <div class="glass p-4 rounded-3xl border border-cyan-500/30 shadow-xl flex flex-col gap-3">
                             <div class="flex items-center gap-2">
                                 <button onclick="browserBack()" class="bg-slate-900 hover:bg-slate-800 text-slate-300 p-2.5 rounded-xl border border-slate-700 transition"><i class="fa-solid fa-arrow-right"></i></button>
@@ -195,10 +200,14 @@
                                     <button onclick="quickNav('https://wikipedia.org')" class="bg-slate-900 hover:bg-slate-800 border border-slate-700 px-3 py-1.5 rounded-xl transition">ويكيبيديا</button>
                                 </div>
 
-                                <!-- زر تحميل ملف APK المتجر للمستخدمين -->
-                                <a href="${db.storeApkUrl}" download="HassanStore.apk" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-4 py-2 rounded-xl flex items-center gap-2 transition shadow-lg shadow-emerald-500/20">
-                                    <i class="fa-solid fa-download"></i> تحميل APK المتجر
-                                </a>
+                                <!-- زر تحميل ملف APK للمتجر (يظهر فقط إذا قام الأدمن برفعه مسبقاً) -->
+                                ${db.storeApkData ? `
+                                    <a href="${db.storeApkData}" download="${db.apkName}" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-4 py-2 rounded-xl flex items-center gap-2 transition shadow-lg shadow-emerald-500/20">
+                                        <i class="fa-solid fa-download"></i> تحميل APK المتجر
+                                    </a>
+                                ` : `
+                                    <span class="text-slate-500 text-xs">لم يتم رفع ملف APK للمتجر بعد من قبل الأدمن</span>
+                                `}
                             </div>
                         </div>
 
@@ -216,19 +225,24 @@
                     <div class="max-w-xl mx-auto w-full glass p-8 rounded-3xl border border-amber-500/40 shadow-2xl space-y-6">
                         <div class="flex items-center justify-between">
                             <h2 class="text-xl font-bold text-amber-400 flex items-center gap-2">
-                                <i class="fa-solid fa-shield-halved"></i> لوحة تحكم الأدمن
+                                <i class="fa-solid fa-shield-halved"></i> لوحة الأدمن - رفع ملف APK المتجر
                             </h2>
                             <button onclick="router('browser')" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-xl text-xs transition">العودة للمتصفح</button>
                         </div>
-                        <p class="text-xs text-slate-400">هنا لوحة التحكم الخاصة بالأدمن لإدارة رابط تحميل تطبيق المتجر (APK).</p>
+                        <p class="text-xs text-slate-400">اختر ملف الـ APK الخاص بالمتجر من جهازك لكي يتم حفظه وإتاحته مباشرة للزوار ليقوموا بتحميله.</p>
                         
-                        <form onsubmit="updateApkLink(event)" class="glass p-6 rounded-2xl border border-slate-700 space-y-4">
-                            <div>
-                                <label class="block text-xs text-slate-400 mb-1">رابط تحميل ملف APK للمتجر</label>
-                                <input type="text" id="apkUrlInput" value="${db.storeApkUrl}" required class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-sm text-slate-200 focus:outline-none focus:border-amber-500">
+                        <div class="glass p-6 rounded-2xl border border-slate-700 text-center space-y-4">
+                            <div class="w-16 h-16 bg-amber-500/10 text-amber-400 rounded-2xl mx-auto flex items-center justify-center text-2xl">
+                                <i class="fa-solid fa-file-arrow-up"></i>
                             </div>
-                            <button type="submit" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-2.5 rounded-xl transition text-sm shadow-lg shadow-amber-500/20">حفظ وتحديث الرابط</button>
-                        </form>
+                            <div>
+                                <h3 class="font-bold text-sm text-slate-200">الملف الحالي: ${db.apkName}</h3>
+                            </div>
+                            <label class="block w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-3 px-4 rounded-xl cursor-pointer transition text-sm shadow-lg shadow-amber-500/20">
+                                <i class="fa-solid fa-folder-open ml-2"></i> اختيار ملف APK من الجهاز
+                                <input type="file" accept=".apk" class="hidden" onchange="handleStoreApkUpload(event)">
+                            </label>
+                        </div>
                     </div>
                 `;
             }
@@ -270,4 +284,5 @@
         render();
     </script>
 </body>
-</html>
+        </html>
+    
